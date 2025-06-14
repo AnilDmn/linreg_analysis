@@ -28,8 +28,8 @@ class BostonNode(Node):
         X = boston.data
         y = boston.target
 
-        # Use just one feature (for plotting and simplicity)
-        X_feature = X[:, 5].reshape(-1, 1)  # RM: average number of rooms per dwelling
+        # Use just one feature (RM: average number of rooms)
+        X_feature = X[:, 5].reshape(-1, 1)
 
         # Split data
         X_train, X_test, y_train, y_test = train_test_split(X_feature, y, test_size=0.2, random_state=42)
@@ -62,20 +62,26 @@ class BostonNode(Node):
 
         # Plot
         plt.figure(figsize=(8, 6))
-        plt.scatter(X_test, y_test, color='blue', label='Actual')
-        plt.plot(X_test, y_pred, color='red', label='Predicted')
+        plt.scatter(X_train, y_train, color='blue', label='Training Data', alpha=0.5)
+        plt.scatter(X_test, y_test, color='green', label='Test Data (Actual)', alpha=0.7)
+
+        # Sort for line plotting
+        X_all = np.vstack((X_train, X_test))
+        X_line = np.linspace(X_all.min(), X_all.max(), 100).reshape(-1, 1)
+        y_line = model.predict(X_line)
+
+        plt.plot(X_line, y_line, color='red', label='Regression Line')
         plt.xlabel('Average Number of Rooms (RM)')
         plt.ylabel('House Price ($1000s)')
         plt.title('Boston Housing: Linear Regression')
         plt.legend()
         plt.grid(True)
 
-        plot_path = '/home/anild/ros2_ws/src/linreg_analysis/boston_regression_plot.png'
+        plot_path = '/home/anild/ros2_ws/src/linreg_analysis/boston_regression_plot_full.png'
         plt.savefig(plot_path)
         plt.close()
         self.get_logger().info(f'Plot saved to: {plot_path}')
 
-        # Dummy timer to keep node alive for rqt_graph
         self.create_timer(1.0, lambda: None)
 
 def main(args=None):
